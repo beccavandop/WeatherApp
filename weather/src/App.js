@@ -19,14 +19,19 @@ class TodoForm extends React.Component {
   constructor() {
     super();
     this.state = {
-      text: '',
-      city: '',
-      currentTemp: '',
-      precipIntense: 0,
-      precipChance: 0,
-      date: '',
-      uvIndex: 0,
-      icon: ''
+      currently: {
+        text: '',
+        city: '',
+        currentTemp: '',
+        precipIntense: 0,
+        precipChance: 0,
+        date: '',
+        uvIndex: 0,
+        icon: ''
+      },
+      daily: {
+
+      }
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -39,6 +44,16 @@ class TodoForm extends React.Component {
     });
   }
 
+  //UNIX time converter
+  timeConverter(UNIX_timestamp) {
+    let a = new Date(UNIX_timestamp * 1000);
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let year = a.getFullYear();
+    let month = months[a.getMonth()];
+    let date = a.getDate();
+    let time = date + ' ' + month + ' ' + year;
+    return time;
+  }
 
   handleSubmit(event) {
     event.preventDefault(); //prevents page from reloading
@@ -47,14 +62,18 @@ class TodoForm extends React.Component {
     axios.post('http://localhost:8080/', this.state)
       .then(res => {
         console.log(res.data)
+        let fixedTime = this.timeConverter(res.data.currently.time)
         this.setState({
-          city: this.state.text,
-          currentTemp: res.data.currently.temperature,
-          precipIntense: res.data.currently.precipIntensity,
-          precipChance: res.data.currently.precipProbability,
-          date: res.data.currently.time,
-          uvIndex: res.data.currently.uvIndex,
-          icon: res.data.currently.icon
+          currently: {
+            city: this.state.text,
+            currentTemp: res.data.currently.temperature,
+            precipIntense: res.data.currently.precipIntensity,
+            precipChance: res.data.currently.precipProbability,
+            date: fixedTime,
+            uvIndex: res.data.currently.uvIndex,
+            icon: res.data.currently.icon
+          }
+
         })
         console.log(this.state);
       })
